@@ -47,7 +47,7 @@ disagree, that file and the contract win.
 Needs an NVIDIA driver with CUDA 12 or 13, Python 3.10+, Node.js 20+ and Go 1.24+.
 
 ```bash
-git clone https://github.com/<owner>/eth2015-miner-kit && cd eth2015-miner-kit
+git clone https://github.com/kaimatthewsdev-max/eth2015-miner-kit && cd eth2015-miner-kit
 npm ci
 python3 -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt                 # cupy-cuda12x; swap for cupy-cuda13x on CUDA 13
