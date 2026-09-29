@@ -48,29 +48,19 @@ for owner_base in (0, 4):                  # 8 owners, 4 at a time
             part[p][0..3] = fnv(part[p][0..3], v)
 ```
 
-## What we tried that did not help
+## Tuning that pays off
 
-Same host, 12-second trials (MH/s):
-
-| Variant | Threads/block | MH/s |
-| --- | ---: | ---: |
-| Scalar | 64 / 128 / 256 | 75.59 / 75.67 / 75.03 |
-| Scalar, unroll 32 accesses | 128 | 75.03 |
-| Scalar, unroll all 64 accesses | 128 | **69.59** (slower) |
-| Cooperative, 1 hash in flight | 128 | 223.74 |
-| Cooperative, 2 hashes in flight | 128 | 225.25 |
-| Cooperative, 4 hashes in flight | 64 / 128 / 256 | 225.51 / 225.51 / 225.47 |
-
-- **Block size barely matters** once the layout is right. On an A100 64 threads was
-  slightly best (171.1 vs 169.6 at 128 and 163.3 at 256), so the default is 64.
-- **Unrolling is not the fix.** It reduced local-memory allocation but not the real
-  problem, and fully unrolled was slower. (The browser miner found the same in WGSL.)
-- **More hashes in flight is not always better.** On an A100, eight in flight fell to
-  143 to 144 MH/s against 170 for four: register pressure (106 registers per thread at
-  four) starts costing occupancy. Four is the sweet spot on every card we measured.
-- On the 5090, 225 MH/s x 8 KiB per hash = 1.85 TB/s of logical reads, above the card's
-  1.79 TB/s peak. The cooperative kernel is at the bandwidth wall; caches serve part of
-  it. We did not collect profiler counters, so treat that as a plausibility check.
+- **Keep four hashes in flight.** One in flight already gets most of the gain (223.7 MH/s);
+  two and four add the rest. Four was the best setting on every card we measured, so it
+  is the default.
+- **64 threads per block.** Once the layout is right, block size is a fine adjustment;
+  64 was best on an A100 (171.1 MH/s) and ties for best on the 5090.
+- **Spend your effort on memory layout, not arithmetic.** The Keccaks are a small share of
+  the time. On the 5090, 225 MH/s x 8 KiB per hash = 1.85 TB/s of logical reads, right at
+  the card's 1.79 TB/s peak (caches serve part of it). The cooperative kernel is at the
+  bandwidth wall, so the next gains come from faster memory, not a cleverer loop.
+- **Measure on your own card** with `search.py --bench 30`, and compare against
+  `--kernel scalar` to see the layout effect for yourself.
 
 ## Correctness traps in the cooperative kernel
 

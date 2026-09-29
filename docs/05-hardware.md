@@ -14,8 +14,6 @@ at the time and move daily.
 | RTX 3080 Ti | 96.73 | not recorded | | 0.15 | 655 |
 | Tesla V100 PCIe 32GB | 81.23 | 744 | 0.109 | 0.155 | 524 |
 
-Scalar kernel for comparison: RTX 5090 75.66, RTX 4090 30.75, A100 66.85.
-
 For scale, a laptop GPU in Firefox on eth2015.com did 0.29 MH/s with the browser's scalar
 kernel and 0.58 MH/s with its cooperative one.
 
@@ -37,7 +35,7 @@ Use the rule to shortlist a card, then run `search.py --bench 30` on it before c
   race, and most mints are not contested in the first minutes. By MH/s per dollar the
   3080 Ti, V100 and a well-priced 5090 led our list; the H200 is fastest but poor value.
 - **Memory size is not the constraint.** Every 2015 dataset is under 1.3 GB.
-- **Check a rental before trusting it.** The cheapest V100 offer we found ($0.07/h) failed
-  twice before mining a single hash (dropped SSH and copy). Budget for a failed start.
+- **Benchmark a rental before committing to it.** Thirty seconds of `--bench` tells you
+  what you are actually paying for.
 - **Expected time per card** = difficulty / rate. With a fleet, rates add: two 5090s mine a
   median card in about 4.5 hours on average.

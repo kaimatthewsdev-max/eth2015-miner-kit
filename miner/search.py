@@ -190,19 +190,6 @@ def save_solution(args, job, nonce, mix, result, where):
     print("FOUND nonce %d on %s, saved %s" % (nonce, where, path), flush=True)
 
 
-def cpu_search(args, job, start):
-    """Pure Python, about 2,000 hashes a second: enough for Sepolia's test difficulty, nothing more."""
-    pages, challenge = job["pageCount"], bytes.fromhex(job["challenge"][2:])
-    dag = np.memmap(os.path.join(job["dagDir"], "dag.bin"), mode="r", dtype="<u4", shape=(pages * 32,))
-    goal, nonce, began = target_for(int(job["difficulty"])), start, time.time()
-    while True:
-        mix, result = hashimoto_cpu(dag, pages, challenge, nonce)
-        if int.from_bytes(result, "big") <= goal:
-            print("%d hashes in %.1f s" % ((nonce - start) % U64 + 1, time.time() - began))
-            return save_solution(args, job, nonce, "0x" + mix.hex(), "0x" + result.hex(), "CPU")
-        nonce = (nonce + 1) % U64
-
-
 def main():
     p = argparse.ArgumentParser(description="ETH2015 CUDA search")
     p.add_argument("--job", help="job JSON from tools/job.mjs")
@@ -217,15 +204,12 @@ def main():
     p.add_argument("--target-ms", type=float, default=500, help="aim for GPU launches of this length")
     p.add_argument("--batch", type=int, default=1 << 20, help="first launch size, adapts from there")
     p.add_argument("--max-batch", type=int, default=1 << 30)
-    p.add_argument("--cpu", action="store_true", help="search on the CPU (Sepolia test difficulty only)")
     p.add_argument("--out", default="solutions")
     args = p.parse_args()
     if args.threads % 8:
         p.error("--threads must be a multiple of 8 (eight lanes share one DAG page)")
     job = load_job(args)
     base = args.start if args.start is not None else secrets.randbits(64)
-    if args.cpu:
-        return cpu_search(args, job, base)
 
     import cupy as cp
     gpus = [int(x) for x in args.gpus.split(",")] if args.gpus else list(range(cp.cuda.runtime.getDeviceCount()))

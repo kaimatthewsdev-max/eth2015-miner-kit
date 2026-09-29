@@ -38,8 +38,8 @@ Things that cost us, or others, real time.
 - **A found mint is not a reservation.** Someone else's mint can land first; that work
   cannot be reused as a level-up.
 - **Work is tied to a deployment.** The chain ID and NFT address are in the challenge,
-  so Sepolia solutions are worthless on mainnet and vice versa. Re-run `job.mjs` when the
-  site moves to a new deployment.
+  so work mined for one deployment is worthless on any other. Build jobs with `job.mjs`,
+  which reads the live deployment from the site.
 - **The dataset must match the card's epoch.** A wrong epoch produces valid-looking
   hashes that the contract rejects. `search.py` compares `dagRoot` before it starts.
 - **Save solutions before doing anything else with them.** `search.py` writes the JSON
@@ -48,8 +48,8 @@ Things that cost us, or others, real time.
 
 ## Rentals
 
-- **Check a rented GPU before trusting its listing.** Measure with `--bench` first; our
-  rented cards differed from their datasheet bandwidth and some offers failed to start.
+- **Measure a rented GPU with `--bench` first.** Real bandwidth can differ from the
+  datasheet, and the bench is what predicts your hash rate.
 - **Generate the dataset on the rented machine** rather than uploading 1.2 GB: with many
   cores it takes well under a minute, and the transfer is often the slower, billed part.
   Keep `tree.bin` locally if that is where you build proofs.

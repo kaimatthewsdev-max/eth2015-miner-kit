@@ -44,7 +44,6 @@ const fmt = h => (h < 1 / 60 ? 'under a minute' : h < 1 ? `${Math.round(h * 60)}
 const times = d => `${fmt(hours(d, 100))} at 100 MH/s, ${fmt(hours(d, 225))} at 225 MH/s`;
 console.log(`card ${tokenId} (${job.action}) on chain ${job.chainId}, epoch ${job.epoch}, difficulty ${difficulty}`);
 console.log(`average time: ${times(difficulty)} (a solution can come much sooner or later)`);
-if (difficulty !== record.difficulty) console.log(`this deployment lowers the work for testing; the real 2015 difficulty ${record.difficulty} takes ${times(record.difficulty)}`);
 console.log(`wrote ${file}`);
 const dagDir = path.join(args.data || 'data', String(job.epoch));
 if (!fs.existsSync(path.join(dagDir, 'manifest.json')))

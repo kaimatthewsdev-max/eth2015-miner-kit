@@ -27,16 +27,15 @@ and write your own.
 2. **[Datasets and epochs](docs/02-dataset.md)**: 25 epochs, one dataset each, built once
    from a 16 MB cache. Which cards share a dataset, and how to check yours is right.
 3. **[The kernel: 75 to 225 MH/s](docs/03-kernel.md)**: eight threads cooperating on each
-   128-byte DAG page tripled throughput on the same GPU. Block size and unrolling did nothing.
-4. **[Work size](docs/04-work-size.md)**: adaptive launches aimed at 500 ms. Fixed small
-   batches left most of the GPU idle.
+   128-byte DAG page tripled throughput on the same GPU.
+4. **[Work size](docs/04-work-size.md)**: adaptive launches aimed at 500 ms keep the GPU
+   busy.
 5. **[Hardware and rates](docs/05-hardware.md)**: measured MH/s for eight GPUs, and the
    bandwidth rule that predicts the rest.
 6. **[Proof and submission](docs/06-proof-and-submit.md)**: the positional Merkle
    multiproof, gas, and the mint race.
-7. **[Browser and WebGPU notes](docs/07-browser-webgpu.md)**: what carried over from CUDA
-   to WGSL, and what did not.
-8. **[Pitfalls](docs/08-pitfalls.md)**: the mistakes that cost us time.
+7. **[Browser and WebGPU notes](docs/07-browser-webgpu.md)**: the same ideas in WGSL.
+8. **[Pitfalls](docs/08-pitfalls.md)**: checks that save you time.
 
 The complete specification of the work and the transaction is published by the project at
 [eth2015.com/llm.txt](https://eth2015.com/llm.txt). If this kit and that file ever
@@ -68,11 +67,6 @@ node tools/prepare.mjs solutions/42-mint-<nonce>.json --from 0xYourSender
 cast send <nft> --data "$(cat tx/42-mint-<nonce>.hex)" --gas-limit <limit> --rpc-url <rpc> --ledger
 ```
 
-**Try it without a GPU first.** While ETH2015 runs its test deployment on Sepolia, the
-required difficulty there is tiny, so `python3 miner/search.py --job jobs/42-mint.json --cpu`
-finds a solution in seconds and you can walk the whole pipeline, up to a simulated
-transaction, before touching CUDA. `job.mjs` prints the real 2015 difficulty alongside.
-
 Nothing in this kit asks for a private key. `prepare.mjs` only simulates; you sign and
 send with whatever wallet you already use (`cast send --ledger`, `--trezor`, `--account`).
 
@@ -82,9 +76,8 @@ send with whatever wallet you already use (`cast send --ledger`, `--trezor`, `--
   [chfast/ethash](https://github.com/chfast/ethash)) and the canonical sizes of all epochs.
 - `miner/search.py`'s CPU reference matches `ethash-tool` byte for byte at nonces 0,
   2^32 and 2^64-1 on the epoch 1 dataset.
-- The full CPU path (job, search, witness, multiproof, calldata, simulation) passes
-  against the Sepolia deployment for a mint (card 1, 1.83M gas) and a level-up (card 3432,
-  epoch 16, 1.76M gas).
+- The path from job to transaction (job, witness, multiproof, calldata, simulation)
+  passes against the ETH2015 contract for a mint (1.83M gas) and a level-up (1.76M gas).
 - `cuda/ethash.cu` is the kernel behind every GPU rate in [docs/05](docs/05-hardware.md).
   `search.py` self-checks it against the CPU on every start, before it mines anything.
 
@@ -92,7 +85,7 @@ send with whatever wallet you already use (`cast send --ledger`, `--trezor`, `--
 
 ```
 cuda/ethash.cu          cooperative search kernel (default), scalar kernel, single-hash check kernel
-miner/search.py         CuPy driver: one process per GPU, adaptive batches, self-checks, --bench, --cpu
+miner/search.py         CuPy driver: one process per GPU, adaptive batches, self-checks, --bench
 tools/ethash-tool/      Go: dataset + Merkle tree generation, CPU mining, witnesses (MIT)
 tools/job.mjs           card number to challenge + difficulty, checked against the contract
 tools/prepare.mjs       nonce to verified witness, multiproof, calldata, simulated transaction

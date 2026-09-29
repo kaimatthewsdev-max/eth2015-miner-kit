@@ -50,13 +50,8 @@ first few launches find the size in a couple of seconds.
   does too.
 - There is no partial progress to save. Restarting from a fresh random start costs nothing.
 
-## The browser version of the same lesson
+## One caution
 
-The eth2015.com browser miner once targeted 50 ms dispatches for dataset generation.
-On one user's machine every GPU completion took at least ~100 ms regardless of size (a
-browser or driver floor), so the controller read every batch as too slow and halved it
-again and again, down to 64 items: **0.04 MiB/s**. Retargeting to 200 ms let batches grow
-past the floor (a controlled reproduction went from 12.82 s to 0.81 s for 512 KiB).
-
-Lesson: elapsed time is not always proportional to work. If your target is close to the
-fixed per-launch cost, adaptive sizing can spiral down. Pick a target comfortably above it.
+Pick a target comfortably above the fixed cost of a launch on your platform. If the target
+is close to that floor, adaptive sizing reads every launch as "too slow" and keeps
+shrinking the batch. 500 ms native (and 200 ms in a browser) sit well clear of it.

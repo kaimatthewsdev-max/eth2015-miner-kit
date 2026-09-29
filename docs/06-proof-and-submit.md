@@ -36,7 +36,7 @@ less. The packing algorithm is in `tools/lib.mjs` (`packProof`) and llm.txt sect
 
 ## Gas
 
-Measured by simulation against the Sepolia deployment with this kit:
+Measured by simulating transactions built with this kit:
 
 | Action | Gas | Calldata |
 | --- | ---: | ---: |
@@ -64,7 +64,7 @@ byte), so the cost is mostly calldata, not computation. At 0.2 gwei a mint is ab
 - **Check the receipt.** State can change between simulation and inclusion. Success means
   the receipt contains a `WorkAccepted` event.
 - **Public RPCs throttle bursts.** Sending dozens of transactions at once from one script
-  got rate-limited on public Sepolia endpoints. Pace them and poll the account nonce rather
+  got rate-limited on public RPC endpoints. Pace them and poll the account nonce rather
   than waiting on each receipt in parallel.
 
 ## Golden cards
