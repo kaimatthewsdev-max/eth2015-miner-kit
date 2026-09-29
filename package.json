@@ -1,0 +1,12 @@
+{
+  "name": "eth2015-miner-kit",
+  "private": true,
+  "type": "module",
+  "description": "Helpers for building your own ETH2015 miner: jobs, witnesses and transactions.",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "ethers": "6.15.0",
+    "js-sha3": "0.9.3"
+  }
+}
